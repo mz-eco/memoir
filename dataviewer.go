@@ -1,27 +1,25 @@
 package memoir
 
-type DataView struct {
+type UIDataView struct {
 	Kind  ComponentKind
 	Name  string
-	Value *Value
+	Value *UIValue
 }
 
-func (m *DataView) Component() Component {
+func (m *UIDataView) Component() Component {
 	return m
 }
 
-func (m *DataView) GetName() string {
+func (m *UIDataView) GetName() string {
 	return m.Name
 }
 
-func (m *DataView) GetKind() ComponentKind {
+func (m *UIDataView) GetKind() ComponentKind {
 	return m.Kind
 }
 
-func NewDataView(name string, v interface{}) *DataView {
-
-	return &DataView{
-		Name:  name,
+func DataView(v interface{}) *UIDataView {
+	return &UIDataView{
 		Kind:  KindDataView,
 		Value: NewValue(v),
 	}

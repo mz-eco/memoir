@@ -7,7 +7,7 @@ import (
 
 func TestDocument_GetKind(t *testing.T) {
 	doc := NewDocument(
-		DocHtmlTranslate,
+		DocHttpTranslate,
 		NewKeyValues(KeyValue{
 			"StatusCode": 12,
 			"Var":        "cccc",

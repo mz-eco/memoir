@@ -5,55 +5,55 @@ import "encoding/json"
 type DocumentType int
 
 const (
-	DocHtmlTranslate DocumentType = 0
+	DocHttpTranslate DocumentType = 0
 )
 
 func (m DocumentType) String() string {
 
 	switch m {
-	case DocHtmlTranslate:
-		return "DocHtmlTranslate"
+	case DocHttpTranslate:
+		return "DocHttpTranslate"
 	}
 
 	return ""
 }
 
-type Document struct {
+type UIDocument struct {
 	Kind       ComponentKind
 	Name       string
 	Type       DocumentType
 	Components []Component
 }
 
-func (m *Document) Component() Component {
+func (m *UIDocument) Component() Component {
 	return m
 }
 
-func (m *Document) GetName() string {
+func (m *UIDocument) GetName() string {
 	return m.Name
 }
 
-func (m *Document) GetKind() ComponentKind {
+func (m *UIDocument) GetKind() ComponentKind {
 	return m.Kind
 }
 
-func (m *Document) JSON() ([]byte, error) {
+func (m *UIDocument) JSON() ([]byte, error) {
 	return json.MarshalIndent(m, "", "    ")
 }
 
-func (m *Document) Add(components ...Component) *Document {
+func (m *UIDocument) Add(components ...Component) *UIDocument {
 
 	m.Components = append(m.Components, components...)
 
 	return m
 }
 
-func NewDocument(doc DocumentType, name string, uiList ...UI) *Document {
+func NewDocument(doc DocumentType, name string, v ...interface{}) *UIDocument {
 
-	return &Document{
+	return &UIDocument{
 		Kind:       KindDocument,
 		Name:       name,
 		Type:       doc,
-		Components: UIToComponent(uiList...),
+		Components: ToComponents(v...),
 	}
 }

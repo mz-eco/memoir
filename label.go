@@ -1,29 +1,29 @@
 package memoir
 
-type Label struct {
+type UILabel struct {
 	Kind       ComponentKind
 	Name       string
 	Title      string
 	Components []Component
 }
 
-func (m *Label) Component() Component {
+func (m *UILabel) Component() Component {
 	return m
 }
 
-func (m *Label) GetName() string {
+func (m *UILabel) GetName() string {
 	return m.Name
 }
 
-func (m *Label) GetKind() ComponentKind {
+func (m *UILabel) GetKind() ComponentKind {
 	return m.Kind
 }
 
-func NewLabel(name string, uiList ...UI) *Label {
+func Label(name string, v ...interface{}) *UILabel {
 
-	return &Label{
+	return &UILabel{
 		Kind:       KindLabel,
 		Name:       name,
-		Components: UIToComponent(uiList...),
+		Components: ToComponents(v...),
 	}
 }

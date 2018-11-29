@@ -2,28 +2,23 @@ package memoir
 
 type KeyValue map[string]interface{}
 
-type KeyValues struct {
-	Name  string
+type UIKeyValue struct {
 	Kind  ComponentKind
-	Items map[string]*Value
+	Items map[string]*UIValue
 }
 
-func (m *KeyValues) Component() Component {
+func (m *UIKeyValue) Component() Component {
 	return m
 }
 
-func (m *KeyValues) GetName() string {
-	return m.Name
-}
-
-func (m *KeyValues) GetKind() ComponentKind {
+func (m *UIKeyValue) GetKind() ComponentKind {
 	return m.Kind
 }
 
-func NewKeyValues(name string, values KeyValue) *KeyValues {
+func NewKeyValues(values KeyValue) *UIKeyValue {
 
 	var (
-		kvs = make(map[string]*Value, 0)
+		kvs = make(map[string]*UIValue, 0)
 	)
 
 	if values != nil {
@@ -31,13 +26,12 @@ func NewKeyValues(name string, values KeyValue) *KeyValues {
 			kvs[key] = NewValue(value)
 		}
 	}
-	return &KeyValues{
-		Name:  name,
+	return &UIKeyValue{
 		Kind:  KindKeyValues,
 		Items: kvs,
 	}
 }
 
-func (m *KeyValues) Set(key string, v interface{}) {
+func (m *UIKeyValue) Set(key string, v interface{}) {
 	m.Items[key] = NewValue(v)
 }

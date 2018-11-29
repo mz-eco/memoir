@@ -1,7 +1,7 @@
 package memoir
 
 type NameValue struct {
-	Value *Value
+	Value *UIValue
 	Name  string
 }
 

@@ -1,8 +1,10 @@
 package memoir
 
 import (
+	"encoding/hex"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -21,20 +23,20 @@ const (
 	XmlValue                = 9
 )
 
-type Value struct {
+type UIValue struct {
 	Type  ValueType
 	Value interface{}
 }
 
 type Valued interface {
-	GetValue() *Value
+	GetValue() *UIValue
 }
 
 type decoder interface {
 	Decode(v interface{}) error
 }
 
-func parseBytes(bytes []byte, e Encoding) *Value {
+func parseBytes(bytes []byte, e Encoding) *UIValue {
 
 	var (
 		middle = make(map[string]interface{})
@@ -52,18 +54,18 @@ func parseBytes(bytes []byte, e Encoding) *Value {
 		return nil
 	}
 
-	return &Value{
+	return &UIValue{
 		Type:  e.Type(),
 		Value: string(bytes),
 	}
 }
 
-func NewValueByBytes(bytes []byte) (value *Value) {
+func NewValueByBytes(bytes []byte) (value *UIValue) {
 
 	defer func() {
 
 		if value == nil {
-			value = &Value{
+			value = &UIValue{
 				Type:  BytesValue,
 				Value: bytes,
 			}
@@ -86,10 +88,10 @@ func NewValueByBytes(bytes []byte) (value *Value) {
 	return
 }
 
-func NewValue(value interface{}) *Value {
+func NewValue(value interface{}) *UIValue {
 
 	if value == nil {
-		return &Value{
+		return &UIValue{
 			Type:  NullValue,
 			Value: nil,
 		}
@@ -97,12 +99,12 @@ func NewValue(value interface{}) *Value {
 
 	switch v := value.(type) {
 	case int8, int16, int32, int64, int:
-		return &Value{
+		return &UIValue{
 			Type:  IntValue,
 			Value: reflect.ValueOf(value).Int(),
 		}
 	case uint, uint8, uint16, uint32, uint64:
-		return &Value{
+		return &UIValue{
 			Type:  UIntValue,
 			Value: reflect.ValueOf(value).Uint(),
 		}
@@ -110,7 +112,7 @@ func NewValue(value interface{}) *Value {
 		x := NewValueByBytes([]byte(v))
 
 		if x.Type == BytesValue {
-			return &Value{
+			return &UIValue{
 				Type:  StringValue,
 				Value: v,
 			}
@@ -120,21 +122,21 @@ func NewValue(value interface{}) *Value {
 	case []byte:
 		return NewValueByBytes(v)
 	case bool:
-		return &Value{
+		return &UIValue{
 			Type:  BooleanValue,
 			Value: v,
 		}
 	case time.Time:
-		return &Value{
+		return &UIValue{
 			Type:  TimeValue,
 			Value: v,
 		}
 	case time.Duration:
-		return &Value{
+		return &UIValue{
 			Type:  DurationValue,
 			Value: v,
 		}
-	case *Value:
+	case *UIValue:
 		return v
 	default:
 
@@ -155,6 +157,60 @@ func NewValue(value interface{}) *Value {
 		fmt.Sprintf("value type %s not support.", reflect.TypeOf(value)))
 }
 
-func (m *Value) String() string {
+func (m *UIValue) String() string {
 	return fmt.Sprintf("%s", m.Value)
+}
+
+func (m *UIValue) View() string {
+
+	switch m.Type {
+	case BytesValue:
+		return hex.Dump(m.Value.([]byte))
+	case StringValue, JsonValue, XmlValue:
+		return m.Value.(string)
+	case TimeValue:
+		p := m.Value.(time.Time)
+		return p.Format("2006-01-02 03:04:05")
+	case NullValue:
+		return "<nil>"
+	case IntValue, UIntValue:
+		return fmt.Sprintf("%d", m.Value)
+	default:
+		return fmt.Sprintf("%s", m.Value)
+	}
+}
+
+func (m *UIValue) Simple() interface{} {
+
+	switch m.Type {
+	case BytesValue:
+		p := m.Value.([]byte)
+
+		if len(p) > 10 {
+			return append(p[:10])
+		}
+	case StringValue:
+
+		p := m.Value.(string)
+
+		index := strings.Index(p, "\n")
+
+		if index < 0 {
+			return p
+		}
+
+		if len(p) > 60 {
+			return string(p[0:index]) + "..."
+		}
+	case JsonValue:
+		return "<JSON>"
+	case XmlValue:
+		return "<XML>"
+	case TimeValue:
+		p := m.Value.(time.Time)
+
+		return p.Format("2006-01-02 03:04:05")
+	}
+
+	return m.Value
 }
